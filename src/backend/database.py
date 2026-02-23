@@ -8,8 +8,10 @@ from argon2 import PasswordHasher, exceptions as argon2_exceptions
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['mergington_high']
+teachers_collection = db['teachers']
 activities_collection = db['activities']
 teachers_collection = db['teachers']
+announcements_collection = db['announcements']
 
 # Methods
 
@@ -47,8 +49,24 @@ def init_database():
     # Initialize teacher accounts if empty
     if teachers_collection.count_documents({}) == 0:
         for teacher in initial_teachers:
-            teachers_collection.insert_one(
-                {"_id": teacher["username"], **teacher})
+            teachers_collection.insert_one({"_id": teacher["username"], **teacher})
+
+    # Initialize announcements if empty
+    if announcements_collection.count_documents({}) == 0:
+        for announcement in initial_announcements:
+            announcements_collection.insert_one(announcement)
+# Example announcement initialization
+from datetime import datetime, timedelta
+
+initial_announcements = [
+    {
+        "title": "Welcome to Mergington High!",
+        "message": "School starts Monday, don't forget your supplies.",
+        "expiration_date": (datetime.now() + timedelta(days=7)).isoformat(),
+        "start_date": datetime.now().isoformat(),
+        "created_by": "principal",
+    }
+]
 
 
 # Initial database if empty
